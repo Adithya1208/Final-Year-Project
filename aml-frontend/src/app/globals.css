@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --primary-dark: rgb(19, 26, 36); /* Global primary dark color */
+    --primary-dark-hover: rgb(30, 40, 50); /* Slightly lighter for hover effect */
+  }
+  
+  /* Optional Tailwind-style class */
+  .bg-primary-dark {
+    background-color: var(--primary-dark);
+  }
+  
+  .bg-primary-dark:hover {
+    background-color: var(--primary-dark-hover);
+  }
+  
