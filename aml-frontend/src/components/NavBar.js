@@ -6,12 +6,12 @@ import { useEffect, useState } from "react";
 export default function NavBar() {
   const router = useRouter();
   const [userRole, setUserRole] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  // Function to check login status and role
+  // Check login status and role from localStorage
   const checkLoginStatus = () => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
-
     setUserRole(token ? role : null);
   };
 
@@ -31,9 +31,16 @@ export default function NavBar() {
     localStorage.clear();
     checkLoginStatus(); // Update state immediately
     window.dispatchEvent(new Event("storage")); // Notify all tabs
-    // Redirect based on role or default to customer login
     router.push("/customer/login");
   };
+
+  // Toggle dropdown on profile icon click
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
+
+  // Hide dropdown if user clicks outside or navigates
+  // (Optional) You can add a click handler on document to hide it
 
   return (
     <nav className="bg-primary-dark text-white h-16 fixed top-0 left-0 w-full flex items-center px-6 shadow-md z-50">
@@ -47,75 +54,146 @@ export default function NavBar() {
         </div>
 
         {/* Navigation Links */}
-        <div>
-          {userRole === "Customer" ? (
+        <div className="flex items-center space-x-6">
+          {userRole === "Customer" && (
             <>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/customer/dashboard")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/customer/dashboard")}
+              >
                 Dashboard
               </span>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/customer/new-transaction")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/customer/new-transaction")}
+              >
                 New Transactions
               </span>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/customer/view-transactions")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/customer/view-transactions")}
+              >
                 View Transactions
               </span>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/customer/feedback")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/customer/feedback")}
+              >
                 Feedback
               </span>
-              <span className="mr-4 cursor-pointer hover:underline text-red-400" onClick={handleLogout}>
-                Logout
-              </span>
             </>
-          ) : userRole === "Admin" ? (
+          )}
+
+          {userRole === "Admin" && (
             <>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/bank/dashboard")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/bank/dashboard")}
+              >
                 Dashboard
               </span>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/bank/manage-customers")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/bank/manage-customers")}
+              >
                 Manage Customers
               </span>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/bank/view-transactions")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/bank/view-transactions")}
+              >
                 View Transactions
               </span>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/bank/suspected-list")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/bank/suspected-list")}
+              >
                 Suspected List
               </span>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/bank/view-feedback")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/bank/view-feedback")}
+              >
                 View Feedback
               </span>
-              <span className="mr-4 cursor-pointer hover:underline text-red-400" onClick={handleLogout}>
-                Logout
-              </span>
             </>
-          ) : userRole === "BankOfficer" ? (
+          )}
+
+          {userRole === "BankOfficer" && (
             <>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/officer/dashboard")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/officer/dashboard")}
+              >
                 Dashboard
               </span>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/officer/view-transactions")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/officer/view-transactions")}
+              >
                 View Transactions
               </span>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/officer/suspected-list")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/officer/suspected-list")}
+              >
                 Suspected List
               </span>
-              <span className="mr-4 cursor-pointer hover:underline text-red-400" onClick={handleLogout}>
-                Logout
-              </span>
             </>
-          ) : (
+          )}
+
+          {/* If no user is logged in, show public links */}
+          {!userRole && (
             <>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/")}
+              >
                 Home
               </span>
-              <a href="#about" className="mr-4 hover:underline">About</a>
-              <a href="#contact" className="mr-4 hover:underline">Contact</a>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/customer/login")}>
+              <a href="/about" className="hover:underline">
+                About
+              </a>
+              <a href="/contact" className="hover:underline">
+                Contact
+              </a>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/customer/login")}
+              >
                 Login
               </span>
-              <span className="mr-4 cursor-pointer hover:underline" onClick={() => router.push("/customer/signup")}>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => router.push("/customer/signup")}
+              >
                 Signup
               </span>
             </>
+          )}
+
+          {/* Profile Icon + Dropdown (only if user is logged in) */}
+          {userRole && (
+            <div className="relative">
+              <img
+                src="/avatar.png" // Or a dynamic URL if you store user’s profileIcon
+                alt="Profile Icon"
+                className="w-8 h-8 rounded-full cursor-pointer"
+                onClick={toggleDropdown}
+              />
+
+              {/* Dropdown Menu */}
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-40 bg-white text-black border border-gray-200 rounded shadow-md z-50">
+                  <div
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

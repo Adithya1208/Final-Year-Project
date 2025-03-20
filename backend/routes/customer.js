@@ -22,10 +22,10 @@ router.get("/profile", protect, async (req, res) => {
 
 /** 📌 UPDATE Customer Profile (including password update) */
 router.put("/update", protect, async (req, res) => {
-  const { _id, name, dob, address, contact, email, username, password, bankName, accountType, accountNumber, currentBalance, access } = req.body;
+  // Include profileIcon in the destructuring
+  const { _id, name, dob, address, contact, email, username, password, profileIcon, bankName, accountType, accountNumber, currentBalance, access } = req.body;
 
-  console.log("_id");
-  console.log(_id);
+  console.log("_id", _id);
 
   try {
     const user = await User.findById(_id);
@@ -35,6 +35,7 @@ router.put("/update", protect, async (req, res) => {
 
     // Update profile fields
     user.name = name || user.name;
+    user.profileIcon = profileIcon || user.profileIcon; // update profileIcon if provided
     user.dob = dob || user.dob;
     user.address = address || user.address;
     user.contact = contact || user.contact;

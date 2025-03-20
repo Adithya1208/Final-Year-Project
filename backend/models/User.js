@@ -13,17 +13,41 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ["Admin", "BankOfficer", "Customer"], required: true },
 
   // Customer-Specific Fields
-  bankName: { type: String, default: null, required: function () { return this.role === "Customer"; } },
-  accountType: { type: String, default: null, required: function () { return this.role === "Customer"; } },
-  accountNumber: { 
-    type: String, 
-    default: null, 
-    required: function () { return this.role === "Customer"; }, 
-    minlength: 8, 
-    maxlength: 8 
+  bankName: {
+    type: String,
+    default: null,
+    required: function () { return this.role === "Customer"; }
   },
-  currentBalance: { type: Number, default: null, required: function () { return this.role === "Customer"; } },
-  access: { type: String, enum: ["Granted", "Denied", "Pending"], default: "Pending" }, // New field to track access status
+  accountType: {
+    type: String,
+    default: null,
+    required: function () { return this.role === "Customer"; }
+  },
+  accountNumber: {
+    type: String,
+    default: null,
+    required: function () { return this.role === "Customer"; },
+    minlength: 8,
+    maxlength: 8
+  },
+  currentBalance: {
+    type: Number,
+    default: null,
+    required: function () { return this.role === "Customer"; }
+  },
+  access: {
+    type: String,
+    enum: ["Granted", "Denied", "Pending"],
+    default: "Pending"
+  },
+
+  // New field for user profile icon
+  // Assuming "avatar.png" is in your "public" folder (e.g., "backend/public/avatar.png")
+  // If your public path differs, adjust the default accordingly.
+  profileIcon: {
+    type: String,
+    default: "/avatar.png"
+  },
 });
 
 // Auto-generate customer ID before saving

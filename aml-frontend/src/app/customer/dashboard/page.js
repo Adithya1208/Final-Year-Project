@@ -53,6 +53,18 @@ export default function CustomerDashboard() {
     setUpdatedData({ ...updatedData, [e.target.name]: e.target.value });
   };
 
+  // Handler for profile icon file input change
+  const handleProfileIconChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // For preview purposes, we create a temporary URL.
+      const imageUrl = URL.createObjectURL(file);
+      setUpdatedData({ ...updatedData, profileIcon: imageUrl });
+      // In a production app, you would likely upload the file to your server
+      // and use the returned URL to update the profileIcon.
+    }
+  };
+
   const handleSave = async () => {
     const token = localStorage.getItem("token");
 
@@ -84,6 +96,23 @@ export default function CustomerDashboard() {
   return (
     <main className="flex flex-col items-center min-h-screen bg-gray-100 p-6">
       <h2 className="text-3xl font-bold mb-6">Customer Dashboard</h2>
+
+      {/* Profile Icon Section */}
+      <div className="flex flex-col items-center mb-6">
+        <img
+          src={updatedData.profileIcon || "/avatar.png"}
+          alt="Profile Icon"
+          className="w-24 h-24 rounded-full object-cover"
+        />
+        {editMode && (
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleProfileIconChange}
+            className="mt-2"
+          />
+        )}
+      </div>
 
       {/* Cards Container */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full max-w-5xl">
