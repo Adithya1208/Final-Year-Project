@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 
 export default function NewTransaction() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const TEST_PRIVATE_KEY = process.env.TEST_PRIVATE_KEY;
   const router = useRouter();
 
   const [transactionData, setTransactionData] = useState({
@@ -33,10 +32,10 @@ export default function NewTransaction() {
     router.push("/customer/dashboard");
   };
 
-  // Call AI prediction service via your backend (for now, simple prediction based on amount)
+  // Call AI prediction service via your backend
   const callAIPrediction = async (txData) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/ai/predict`, {
+      const response = await fetch(`${API_BASE_URL}/ai/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: Number(txData.amount) }),
@@ -46,46 +45,6 @@ export default function NewTransaction() {
     } catch (err) {
       console.error("AI prediction error:", err);
       return false;
-    }
-  };
-
-  // Call blockchain endpoint to record the transaction
-  const recordOnBlockchain = async (txData, isSuspicious) => {
-    // For testing, use the same Ganache account's private key that worked in your testRecord.js
-    // Retrieve additional customer info from localStorage
-    const customerId = localStorage.getItem("customerID") || "CUSTOMER_ID";
-    const customerName = localStorage.getItem("customerName") || "CUSTOMER_NAME";
-    const customerAccount = localStorage.getItem("customerAccount") || "CUSTOMER_AC";
-    // Also retrieve the token for the authorization header
-    const token = localStorage.getItem("token");
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/blockchain/record`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          transactionId: txData.transactionId,
-          customerId,
-          customerName,
-          customerAccount,
-          recipientName: txData.recipientName,
-          recipientAccount: txData.recipientAccount,
-          amount: Number(txData.amount),
-          flagged: isSuspicious,
-          privateKey: "0xc74805b9c531b5e09f2e409f05a1b85c97fe3193616ebcdcb0a6665c4d581a92",
-        }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log("Blockchain:", data.message);
-      } else {
-        console.error("Blockchain error:", data.message);
-      }
-    } catch (err) {
-      console.error("Error recording on blockchain:", err);
     }
   };
 
@@ -126,8 +85,16 @@ export default function NewTransaction() {
       if (response.status === 201) {
         // Call AI prediction to determine if transaction is suspicious
         const isSuspicious = await callAIPrediction(transactionData);
-        // Record the transaction on blockchain with the predicted flagged status
-        await recordOnBlockchain(transactionData, isSuspicious);
+        if (isSuspicious) {
+          // Mark the transaction as flagged by calling the update endpoint
+          await fetch(`${API_BASE_URL}/bank/transactions/${data.transactionId}/flag`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        }
         router.push("/customer/view-transactions");
       } else {
         setError(data.message || "Transaction failed.");

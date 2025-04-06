@@ -22,6 +22,9 @@ app.use("/api/transactions", require("./routes/transactions"));
 app.use("/api/customer", require("./routes/customer"));
 app.use("/api/feedback", require("./routes/feedback"));
 app.use("/api/bank", require("./routes/bank"));
+app.use("/api/ai", require("./routes/predict"));
+
+
 
 // Blockchain routes
 app.use("/api/blockchain", require("./routes/blockchain"));
